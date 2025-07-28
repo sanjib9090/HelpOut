@@ -1,51 +1,33 @@
-import React from 'react';
-import { MapPin, Clock } from 'lucide-react';
+import React from "react";
+import { Card, CardContent } from "./ui/Card";
+import { Clock, MapPin, Tag } from "lucide-react";
 
-const TaskCard = ({ task, navigateTo }) => {
-  const formatDeadline = (deadline) => {
-    const date = new Date(deadline);
-    const now = new Date();
-    const diffTime = date - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Expired';
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    return `${diffDays} days`;
-  };
-
+const TaskCard = ({ task, navigateTo, theme }) => {
   return (
-    <div
-      onClick={() => navigateTo('task', { taskId: task.id })}
-      className="task-card cursor-pointer"
-    >
-      <div className="task-price">${task.budget}</div>
-      <h3 className="task-title">{task.title}</h3>
-      
-      <div className="flex items-center gap-2 text-gray-600 text-sm mb-2">
-        <MapPin size={16} />
-        <span>{task.location}</span>
-      </div>
-      
-      <div className="flex items-center gap-2 text-gray-600 text-sm mb-3">
-        <Clock size={16} />
-        <span>Due: {formatDeadline(task.deadline)}</span>
-        {formatDeadline(task.deadline) === 'Expired' && (
-          <span className="tag tag-urgent">Expired</span>
-        )}
-      </div>
-      
-      <div className="flex flex-wrap gap-1">
-        {task.category && <span className="tag">{task.category}</span>}
-        {task.urgency && <span className={`tag ${task.urgency === 'high' ? 'tag-urgent' : ''}`}>
-          {task.urgency} urgency
-        </span>}
-        {task.negotiable && <span className="tag tag-negotiable">Negotiable</span>}
-        {task.tags && task.tags.map((tag, index) => (
-          <span key={index} className="tag">{tag}</span>
-        ))}
-      </div>
-    </div>
+    <Card className={`border-0 shadow-lg hover:shadow-xl transition-all duration-300 ${theme === "light" ? "bg-white" : "bg-gray-800"}`}>
+      <CardContent className="p-6">
+        <h3 className={`text-lg font-semibold ${theme === "light" ? "text-gray-900" : "text-white"} mb-2`}>{task.title}</h3>
+        <p className={`text-sm ${theme === "light" ? "text-gray-600" : "text-gray-300"} mb-4`}>${task.budget} • {task.location}</p>
+        <div className="flex items-center gap-2 mb-4">
+          <Clock size={16} className={theme === "light" ? "text-gray-400" : "text-gray-300"} />
+          <span className={`text-sm ${theme === "light" ? "text-gray-600" : "text-gray-300"}`}>{new Date(task.deadline).toLocaleString()}</span>
+        </div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {task.tags.map((tag, index) => (
+            <div key={index} className={`flex items-center gap-1 ${theme === "light" ? "bg-gray-100 text-gray-600" : "bg-gray-700 text-gray-300"} px-2 py-1 rounded-full text-xs`}>
+              <Tag size={12} />
+              <span>{tag}</span>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={() => navigateTo("task", { taskId: task.id })}
+          className={`w-full py-2 ${theme === "light" ? "bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600" : "bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700"} text-white font-medium rounded-xl transition-all`}
+        >
+          View Details
+        </button>
+      </CardContent>
+    </Card>
   );
 };
 
