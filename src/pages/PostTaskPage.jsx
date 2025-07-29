@@ -45,22 +45,49 @@ const PostTaskPage = ({ navigateTo, theme, toggleTheme, isLoggedIn }) => {
     { value: 'custom', label: 'Custom Amount' }
   ];
 
-  const validateForm = () => {
+  // Modified to accept formData as a parameter for dynamic validation
+  const validateForm = (data = formData) => {
     const newErrors = {};
-    if (!formData.title) newErrors.title = 'Task title is required';
-    if (!formData.description) newErrors.description = 'Description is required';
-    if (!formData.category) newErrors.category = 'Category is required';
-    if (!formData.location) newErrors.location = 'Location is required';
+    if (!data.title) newErrors.title = 'Task title is required';
+    if (!data.description) newErrors.description = 'Description is required';
+    if (!data.category) newErrors.category = 'Category is required';
+    if (!data.location) newErrors.location = 'Location is required';
     return newErrors;
   };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    // Update formData with the new input value
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    setErrors(prev => ({ ...prev, [name]: '' }));
+
+    // Clear error for the changed field and clean up empty errors
+    setErrors(prev => {
+      const newErrors = { ...prev, [name]: '' };
+      // Remove empty error messages to prevent false positives in Object.keys(errors).length
+      Object.keys(newErrors).forEach(key => {
+        if (!newErrors[key]) delete newErrors[key];
+      });
+      return newErrors;
+    });
+
+    // Re-validate the form with the updated data to ensure errors reflect the current state
+    const updatedFormData = {
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    };
+    const validationErrors = validateForm(updatedFormData);
+    setErrors(prev => {
+      const newErrors = { ...validationErrors };
+      // Clean up empty errors to keep errors object minimal
+      Object.keys(newErrors).forEach(key => {
+        if (!newErrors[key]) delete newErrors[key];
+      });
+      return newErrors;
+    });
   };
 
   const handleTagToggle = (tag) => {
@@ -481,7 +508,6 @@ const PostTaskPage = ({ navigateTo, theme, toggleTheme, isLoggedIn }) => {
           </form>
         </div>
       </main>
-
     </div>
   );
 };
